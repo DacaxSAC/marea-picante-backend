@@ -25,26 +25,47 @@ app.use(cors(corsOptions));
 const sequelize = require('./utils/database.util');
 
 // Associations
+const { Client } = require("./models/client.model");
+const { Employee } = require("./models/employee.model");
 const { Product } = require("./models/product.model");
 const { Category } = require("./models/category.model");
+const { Order } = require("./models/order.model");
+const { OrderDetail } = require("./models/orderDetail.model");
+const { OrderTable } = require("./models/orderTable.model");
+const { Table } = require("./models/table.model");
 
+// Product-Category associations
 Product.belongsTo(Category, { foreignKey: 'categoryId', as: 'categorias' });
 Category.hasMany(Product, { foreignKey: 'categoryId', as: 'productos' });
 
-// Verificar conexión a la base de datos
-sequelize
-  .authenticate()
-  .then(() => console.log("Conectado a la base de datos PostgreSQL"))
-  .catch((err) => console.error("No se pudo conectar a la base de datos", err));
+// Order associations
+Order.belongsTo(Client, { foreignKey: 'clientId', as: 'cliente' });
+Order.belongsTo(Employee, { foreignKey: 'employeeId', as: 'empleado' });
+Order.hasMany(OrderDetail, { foreignKey: 'orderId', as: 'detalles' });
+OrderDetail.belongsTo(Order, { foreignKey: 'orderId' });
+OrderDetail.belongsTo(Product, { foreignKey: 'productId', as: 'producto' });
 
-sequelize
-  .sync(
-    { 
-      // force: true 
-    }
-  )
-  .then(() => console.log("Modelos sincronizados con la base de datos"))
-  .catch((err) => console.error("Error al sincronizar los modelos", err));
+// Order-Table associations
+Order.belongsToMany(Table, { through: OrderTable, as: 'mesas' });
+Table.belongsToMany(Order, { through: OrderTable, as: 'ordenes' });
+
+// Verificar conexión a la base de datos
+const initializeDatabase = async () => {
+  try {
+    await sequelize.authenticate();
+    console.log("Conectado a la base de datos PostgreSQL");
+    
+    await sequelize.sync({ 
+        force: true // Habilitar temporalmente para recrear las tablas
+    });
+    console.log("Modelos sincronizados con la base de datos");
+  } catch (error) {
+    console.error("Error en la inicialización de la base de datos:", error);
+    process.exit(1); // Terminar la aplicación si no se puede conectar a la BD
+  }
+};
+
+initializeDatabase();
 
 // Configuración de Swagger
 const swaggerOptions = {
@@ -70,6 +91,7 @@ const { ProductRoutes } = require('./routes/product.routes');
 const { TableRoutes } = require('./routes/table.routes');
 const { ClientRoutes } = require('./routes/client.routes');
 const { EmployeeRoutes } = require('./routes/employee.routes');
+const { OrderRoutes } = require('./routes/order.routes');
 
 app.use("/api/auth", AuthRoutes);
 app.use('/api/categories', CategoryRoutes);
@@ -77,6 +99,7 @@ app.use('/api/products', ProductRoutes);
 app.use('/api/tables', TableRoutes);
 app.use('/api/clients', ClientRoutes);
 app.use('/api/employees', EmployeeRoutes);
+app.use('/api/orders', OrderRoutes);
 
 app.get('/', (req, res) => {
   res.redirect('/api-docs');
@@ -84,5 +107,16 @@ app.get('/', (req, res) => {
 
 // Escuchando puerto de entrada
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor corriendo en el puerto ${PORT}`));
+const startServer = () => {
+  try {
+    app.listen(PORT, () => {
+      console.log(`Servidor corriendo en el puerto ${PORT}`);
+      console.log(`Documentación disponible en http://localhost:${PORT}/api-docs`);
+    });
+  } catch (error) {
+    console.error("Error al iniciar el servidor:", error);
+    process.exit(1);
+  }
+};
 
+startServer();
