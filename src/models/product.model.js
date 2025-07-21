@@ -23,10 +23,24 @@ const Product = sequelize.define('Product', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  pricePersonal: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  priceFuente: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  description: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   state: {
     type: DataTypes.INTEGER,
     allowNull: false
   }
+}, {
+  tableName: 'products',
 });
 
 module.exports = { Product };

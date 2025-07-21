@@ -4,16 +4,20 @@ const Joi = require('joi');
 const controllers = {}
 
 const productSchema = Joi.object({
-  productId: Joi.number().integer().positive(),
-  categoryId: Joi.number().integer().positive().required(),
-  code: Joi.string().max(255).required(),
   name: Joi.string().max(255).required(),
   description: Joi.string().max(255),
-  state: Joi.number().integer().positive()
+  categoryId: Joi.number().integer().positive().required(),
 });
 
 controllers.create = async (req, res) => {
-  const { error } = productSchema.validate(req.body);
+  const { name, description, categoryId } = req.body;
+  const productData = {
+    name,
+    description,
+    categoryId
+  }
+
+  const { error } = productSchema.validate(productData);
   if (error) return res.status(400).send(error.details[0].message);
 
   try {
@@ -44,13 +48,29 @@ controllers.getById = async (req, res) => {
 };
 
 controllers.update = async (req, res) => {
-  const { error } = productSchema.validate(req.body);
+  const { name, description, categoryId } = req.body;
+  const productData = {
+    name,
+    description,
+    categoryId
+  }
+
+  const { error } = productSchema.validate(productData);
   if (error) return res.status(400).send(error.details[0].message);
 
   try {
-    const updated = await ProductService.update(req.params.id, req.body);
-    if (updated[0] === 0) return res.status(404).send('Producto no encontrado');
-    res.send('Producto actualizado exitosamente');
+    const updated = await ProductService.update(
+      req.params.id,
+      productData
+    );
+    if (updated[0] === 0)
+      return res.status(404).send("Producto no encontrado");
+    
+    const updatedProduct = await ProductService.getById(req.params.id);
+    res.send({
+      message: "Producto actualizado exitosamente",
+      category: updatedProduct[0]
+    });
   } catch (err) {
     res.status(400).send(err.message);
   }

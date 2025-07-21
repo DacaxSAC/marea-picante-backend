@@ -4,19 +4,22 @@ const Joi = require("joi");
 const controllers = {}
 
 const categorySchema = Joi.object({
-  categoryId: Joi.number().integer().positive(),
-  code: Joi.string().max(255).required(),
   name: Joi.string().max(255).required(),
   description: Joi.string().max(255),
-  state: Joi.number().integer().positive()
 });
 
 controllers.create = async (req, res) => {
-  const { error } = categorySchema.validate(req.body);
+  const { name, description } = req.body;
+  const categoryData = {
+    name,
+    description
+  }
+
+  const { error } = categorySchema.validate(categoryData);
   if (error) return res.status(400).send(error.details[0].message);
 
   try {
-    const category = await CategoryService.create(req.body);
+    const category = await CategoryService.create(categoryData);
     res.status(201).send(category);
   } catch (err) {
     res.status(400).send(err.message);
@@ -35,25 +38,37 @@ controllers.getAll = async (req, res) => {
 controllers.getById = async (req, res) => {
   try {
     const category = await CategoryService.getById(req.params.id);
-    if (!category) return res.status(404).send("Categoría no encontrada");
-    res.send(category);
+
+    if (!category || category.length === 0) return res.status(404).send("Categoría no encontrada");
+    res.send(category[0]);
   } catch (err) {
     res.status(400).send(err.message);
   }
 };
 
 controllers.update = async (req, res) => {
-  const { error } = categorySchema.validate(req.body);
+  const { name, description } = req.body;
+  const categoryData = {
+    name,
+    description
+  }
+
+  const { error } = categorySchema.validate(categoryData);
   if (error) return res.status(400).send(error.details[0].message);
 
   try {
     const updated = await CategoryService.update(
       req.params.id,
-      req.body
+      categoryData
     );
     if (updated[0] === 0)
       return res.status(404).send("Categoría no encontrada");
-    res.send("Categoría actualizada exitosamente");
+    
+    const updatedCategory = await CategoryService.getById(req.params.id);
+    res.send({
+      message: "Categoría actualizada exitosamente",
+      category: updatedCategory[0]
+    });
   } catch (err) {
     res.status(400).send(err.message);
   }
@@ -63,10 +78,13 @@ controllers.delete = async (req, res) => {
   try {
     const deleted = await CategoryService.delete(req.params.id);
     if (deleted === 0) return res.status(404).send("Categoría no encontrada");
-    res.send("Categoría eliminada exitosamente");
+    res.send({
+      message: "Categoría eliminada exitosamente",
+      categoryId: req.params.id
+    });
   } catch (err) {
     res.status(400).send(err.message);
   }
 };
 
-module.exports = { CategoryController: controllers}
+module.exports = { CategoryController: controllers }

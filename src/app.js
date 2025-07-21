@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const swaggerJsDoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
 const cors = require("cors");
+const { initializeData } = require("./utils/initializeData.util");
 
 // Cargar variables de entorno
 dotenv.config();
@@ -33,6 +34,7 @@ const { Order } = require("./models/order.model");
 const { OrderDetail } = require("./models/orderDetail.model");
 const { OrderTable } = require("./models/orderTable.model");
 const { Table } = require("./models/table.model");
+const User = require("./models/user.model");
 
 // Product-Category associations
 Product.belongsTo(Category, { foreignKey: 'categoryId', as: 'categorias' });
@@ -49,6 +51,12 @@ OrderDetail.belongsTo(Product, { foreignKey: 'productId', as: 'producto' });
 Order.belongsToMany(Table, { through: OrderTable, as: 'mesas' });
 Table.belongsToMany(Order, { through: OrderTable, as: 'ordenes' });
 
+// User associations
+Client.belongsTo(User, { foreignKey: 'userId' });
+User.hasOne(Client, { foreignKey: 'userId' });
+Employee.belongsTo(User, { foreignKey: 'userId' });
+User.hasOne(Employee, { foreignKey: 'userId' });
+
 // Verificar conexión a la base de datos
 const initializeDatabase = async () => {
   try {
@@ -59,6 +67,9 @@ const initializeDatabase = async () => {
         force: true // Habilitar temporalmente para recrear las tablas
     });
     console.log("Modelos sincronizados con la base de datos");
+    
+    // Inicializar datos después de sincronizar
+    await initializeData();
   } catch (error) {
     console.error("Error en la inicialización de la base de datos:", error);
     process.exit(1); // Terminar la aplicación si no se puede conectar a la BD
@@ -92,6 +103,8 @@ const { TableRoutes } = require('./routes/table.routes');
 const { ClientRoutes } = require('./routes/client.routes');
 const { EmployeeRoutes } = require('./routes/employee.routes');
 const { OrderRoutes } = require('./routes/order.routes');
+const { UserRoutes } = require('./routes/user.routes');
+const { RoleRoutes } = require('./routes/role.routes'); // Agregar esta línea
 
 app.use("/api/auth", AuthRoutes);
 app.use('/api/categories', CategoryRoutes);
@@ -100,6 +113,8 @@ app.use('/api/tables', TableRoutes);
 app.use('/api/clients', ClientRoutes);
 app.use('/api/employees', EmployeeRoutes);
 app.use('/api/orders', OrderRoutes);
+app.use('/api/users', UserRoutes);
+app.use('/api/roles', RoleRoutes); // Agregar esta línea
 
 app.get('/', (req, res) => {
   res.redirect('/api-docs');

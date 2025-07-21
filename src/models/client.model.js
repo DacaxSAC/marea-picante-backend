@@ -7,6 +7,15 @@ const Client = sequelize.define('Client', {
         autoIncrement: true,
         primaryKey: true,
     },
+    userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        unique: true,
+        references: {
+            model: 'Users', // Nombre de la tabla
+            key: 'userId'
+        }
+    },
     dni: {
         type: DataTypes.STRING,
         allowNull: false,

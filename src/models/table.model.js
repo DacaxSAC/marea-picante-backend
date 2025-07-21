@@ -17,7 +17,8 @@ const Table = sequelize.define('Table', {
   },
   state: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    defaultValue: 1,
+    allowNull: false,
   }
 });
 

@@ -6,10 +6,11 @@ const User = sequelize.define('User', {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
-      },  
-    name: {
+    },  
+    username: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: true,
         validate: {
             len: [3, 255]
         }
@@ -29,6 +30,19 @@ const User = sequelize.define('User', {
         validate: {
             len: [6, 1024]
         }
+    },
+    roleId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: 'Roles',
+            key: 'roleId'
+        }
+    },
+    state: {
+      type: DataTypes.INTEGER,
+      defaultValue: 1,
+      allowNull: false
     }
 }, {
     timestamps: true
