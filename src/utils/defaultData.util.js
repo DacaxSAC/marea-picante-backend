@@ -400,20 +400,6 @@ const products = [
         pricePersonal: 7.00,
         priceFuente: 0.00,
     },
-    {
-        name: "Suspiro a la Limeña",
-        description: "coloca descripcion aquí",
-        categoryId: 9,
-        pricePersonal: 8.00,
-        priceFuente: 0.00,
-    },
-    {
-        name: "Suspiro a la Limeña",
-        description: "coloca descripcion aquí",
-        categoryId: 10,
-        pricePersonal: 8.00,
-        priceFuente: 0.00,
-    },
     
     // Bebidas
     {
