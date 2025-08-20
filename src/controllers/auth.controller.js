@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const Joi = require("joi");
 
 const registerSchema = Joi.object({
-  name: Joi.string().min(3).max(255).required(),
+  username: Joi.string().min(3).max(255).required(),
   email: Joi.string().min(5).max(255).email().required(),
   password: Joi.string().min(6).max(1024).required(),
 });
@@ -14,7 +14,7 @@ exports.register = async (req, res) => {
   const { error } = registerSchema.validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const { name, email, password } = req.body;
+  const { username, email, password } = req.body;
 
   // Verificar si el usuario ya existe
   const emailExist = await User.findOne({ where: { email } });
@@ -25,14 +25,14 @@ exports.register = async (req, res) => {
   const hashedPassword = await bcrypt.hash(password, salt);
 
   // Crear un nuevo usuario
-  const user = User.build({ name, email, password: hashedPassword });
+  const user = User.build({ username, email, password: hashedPassword });
 
   try {
     const savedUser = await user.save();
     res.send({
       user: {
         id: savedUser.id,
-        name,
+        username,
         email,
       },
     });

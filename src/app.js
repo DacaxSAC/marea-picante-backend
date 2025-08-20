@@ -64,7 +64,7 @@ const initializeDatabase = async () => {
     console.log("Conectado a la base de datos PostgreSQL");
     
     await sequelize.sync({ 
-        force: true // Habilitar temporalmente para recrear las tablas
+        // force: true // Habilitar temporalmente para recrear las tablas
     });
     console.log("Modelos sincronizados con la base de datos");
     
