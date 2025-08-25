@@ -69,7 +69,7 @@ const initializeDatabase = async () => {
     console.log("Modelos sincronizados con la base de datos");
     
     // Inicializar datos después de sincronizar
-    await initializeData();
+    // await initializeData();
   } catch (error) {
     console.error("Error en la inicialización de la base de datos:", error);
     process.exit(1); // Terminar la aplicación si no se puede conectar a la BD
