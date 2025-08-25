@@ -15,7 +15,7 @@ app.use(express.json());
 
 // Configurar CORS
 const corsOptions = {
-  origin: ['http://localhost:3000', 'https://zero01-back-restaurant-erp.onrender.com'], // Permitir ambos orígenes
+  origin: ['http://localhost:3000', 'https://marea-picante-backend.onrender.com'], // Permitir ambos orígenes
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true, // Permitir cookies y credenciales
   allowedHeaders: ['Content-Type', 'Authorization'], // Permitir estos encabezados
